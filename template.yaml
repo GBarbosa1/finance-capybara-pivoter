@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Detects SMA (simple moving average) trend pivots for a ticker over its
+  recent price history and publishes a signal to SQS when one is found.
+  Intended to be invoked from a Step Functions state machine.
+
+Resources:
+  PivotDetectorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Timeout: 30
+      MemorySize: 512
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: sqs:SendMessage
+              Resource: "*"
+    Metadata:
+      DockerTag: pivot-detector
+      DockerContext: .
+      Dockerfile: Dockerfile
+
+Outputs:
+  PivotDetectorFunctionArn:
+    Value: !GetAtt PivotDetectorFunction.Arn
